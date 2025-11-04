@@ -1,14 +1,32 @@
-// src/routes/resourceRoutes.js
-// Express router for /api/resources endpoints.
+import express from "express";
+import upload from "../middleware/multer.js";
+import {
+  createResource,
+  getResources,
+  getResourceById,
+  updateResource,
+  deleteResource,
+  addFilesToResource,
+  removeFileFromResource,
+  trackDownload,
+  toggleFavorite,
+  getResourceStats,
+} from "../controllers/resourceController.js";
 
-const express = require('express');
 const router = express.Router();
-const resourceController = require('../controllers/resourceController');
 
-// GET /api/resources - list
-router.get('/', resourceController.getResources);
+// All routes are public (no authentication)
+router.get("/", getResources);                          // Get all with filters
+router.get("/stats", getResourceStats);                 // Get statistics
+router.get("/:id", getResourceById);                    // Get single resource
+router.post("/", upload.single("file"), createResource); // Create resource
+router.put("/:id", upload.single("file"), updateResource); // Update resource
+router.delete("/:id", deleteResource);                  // Delete resource
+router.post("/:id/download", trackDownload);            // Track download
+router.post("/:id/favorite", toggleFavorite);           // Toggle favorite
 
-// POST /api/resources - create
-router.post('/', resourceController.createResource);
+// File management
+router.patch("/:id/add-files", upload.array("files", 10), addFilesToResource);
+router.delete("/:id/remove-file/:fileId", removeFileFromResource);
 
-module.exports = router;
+export default router;

@@ -114,10 +114,20 @@ const resourceSchema = new mongoose.Schema(
   }
 );
 
-// Indexes for faster search
+// Indexes for faster search and queries
 resourceSchema.index({ title: "text", description: "text", tags: "text" });
 resourceSchema.index({ department: 1, folder: 1, isActive: 1 });
 resourceSchema.index({ uploadedBy: 1 });
 resourceSchema.index({ createdAt: -1 });
+resourceSchema.index({ type: 1 });
+
+// Virtual for favorite count
+resourceSchema.virtual("favoriteCount").get(function () {
+  return this.favoritedBy ? this.favoritedBy.length : 0;
+});
+
+// Ensure virtuals are included in JSON
+resourceSchema.set("toJSON", { virtuals: true });
+resourceSchema.set("toObject", { virtuals: true });
 
 export default mongoose.model("Resource", resourceSchema);

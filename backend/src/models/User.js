@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["visitor", "member", "comanager"],
+      enum: ["visitor", "member", "co-manager"],
       default: "member",
     },
     department: {
@@ -87,13 +87,18 @@ const userSchema = new mongoose.Schema(
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
+  // Only hash if password is modified
   if (!this.isModified("password")) {
     return next();
   }
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Method to compare password
@@ -101,14 +106,18 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Remove password from JSON response
+// Remove sensitive fields from JSON response
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
+  delete user.__v;
   return user;
 };
 
-// Index for search
+// Indexes for search and performance
+userSchema.index({ email: 1 });
 userSchema.index({ name: "text", email: "text" });
+userSchema.index({ department: 1 });
+userSchema.index({ role: 1, isActive: 1 });
 
 export default mongoose.model("User", userSchema);

@@ -57,7 +57,9 @@ departmentSchema.pre("save", function (next) {
   next();
 });
 
-// ✅ Text index for search
+// ✅ Indexes for search and queries
 departmentSchema.index({ name: "text", description: "text" });
+departmentSchema.index({ slug: 1 });
+departmentSchema.index({ isActive: 1 });
 
 export default mongoose.model("Department", departmentSchema);

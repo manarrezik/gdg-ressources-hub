@@ -415,9 +415,4 @@ backend/
 
 ---
 
-### ✅ Version
-**API Version:** v1  
-**Last Updated:** November 2025  
-**Maintained by:** OMC Club – GDG Resource Hub Team
-
 ---
